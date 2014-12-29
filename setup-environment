@@ -26,20 +26,21 @@ PROGNAME="setup-environment"
 
 usage()
 {
-    echo -e "\nUsage: source $PROGNAME <build-dir>
+    echo -e "\nUsage: source $PROGNAME <build-dir> <SOC>
     <build-dir>: specifies the build directory location (required)
+    <SOC>: imx6|sunxi (required)
 
-If undefined, this script will set \$MACHINE to 'imx6dlwisehmi'.
+If undefined, this script will set \$MACHINE to 'imx6dlwisehmi'(imx6) or 'a20-navi'(sunxi).
 "
 
-    ls sources/*/conf/machine/*.conf > /dev/null 2>&1
+    ls sources/meta-autorock/conf/machine/*.conf > /dev/null 2>&1
     if [ $? -eq 0 ]; then
         echo -e "
-Supported machines: `echo; ls sources/*/conf/machine/*.conf \
+Supported machines: `echo; ls sources/meta-autorock/conf/machine/*.conf \
 | sed s/\.conf//g | sed -r 's/^.+\///' | xargs -I% echo -e "\t%"`
 
 To build for a machine listed above, run this script as:
-MACHINE=<machine> source $PROGNAME <build-dir>
+MACHINE=<machine> source $PROGNAME <build-dir> <SOC>
 "
     fi
 }
@@ -84,12 +85,29 @@ if [ "$(whoami)" = "root" ]; then
     echo "ERROR: do not use the BSP as root. Exiting..."
 fi
 
+case "$2" in
+    'imx6'|'sunxi')
+        echo "SOC=$2"
+        ;;
+    *)
+        usage && clean_up
+        return 1
+        ;;
+esac
+
 if [ -z "$MACHINE" ]; then
-    MACHINE='imx6dlwisehmi'
+    case "$2" in
+        'imx6')
+            MACHINE='imx6dlwisehmi'
+            ;;
+        'sunxi')
+            MACHINE='a20-navi'
+            ;;
+    esac
 fi
 
 # Check the machine type specified
-LIST_MACHINES=`ls -1 $CWD/sources/*/conf/machine`
+LIST_MACHINES=`ls -1 $CWD/sources/meta-autorock/conf/machine`
 VALID_MACHINE=`echo -e "$LIST_MACHINES" | grep ${MACHINE}.conf$ | wc -l`
 if [ "x$MACHINE" = "x" ] || [ "$VALID_MACHINE" = "0" ]; then
     echo -e "\nThe \$MACHINE you have specified ($MACHINE) is not supported by this build setup"
@@ -106,7 +124,7 @@ if [ -z "$SDKMACHINE" ]; then
 fi
 
 if [ -z "$DISTRO" ]; then
-    DISTRO='poky'
+    DISTRO='linda'
 fi
 
 OEROOT=sources/poky
@@ -175,66 +193,14 @@ EOF
 fi
 
 # Handle EULA setting
-if [ -z "$EULA" ] && ! grep -q '^ACCEPT_FSL_EULA\s*=' conf/local.conf; then
-    EULA='ask'
+if [ "$2" = "imx6" ]; then
+    EULA=1
+    if grep -q '^ACCEPT_FSL_EULA\s*=' conf/local.conf; then
+        sed -i "s/^#*ACCEPT_FSL_EULA\s*=.*/ACCEPT_FSL_EULA = \"$EULA\"/g" conf/local.conf
+    else
+        echo "ACCEPT_FSL_EULA = \"$EULA\"" >> conf/local.conf
+    fi
 fi
-
-if [ "$EULA" = "ask" ]; then
-    cat <<EOF
-
-Some BSPs depend on libraries and packages which are covered by Freescale's
-End User License Agreement (EULA). To have the right to use these binaries in
-your images, you need to read and accept the following...
-
-EOF
-
-    sleep 4
-
-    more -d $CWD/sources/meta-fsl-arm/EULA
-    echo
-    while [ "$EULA" = "ask" ]; do
-        echo -n "Do you accept the EULA you just read? (y/n) "
-        read REPLY
-        case "$REPLY" in
-            y|Y)
-            echo "EULA has been accepted."
-            EULA="1"
-            ;;
-            n|N)
-            echo "EULA has not been accepted."
-            EULA="0"
-            ;;
-        esac
-    done
-fi
-
-if grep -q '^ACCEPT_FSL_EULA\s*=' conf/local.conf; then
-    sed -i "s/^#*ACCEPT_FSL_EULA\s*=.*/ACCEPT_FSL_EULA = \"$EULA\"/g" conf/local.conf
-else
-    echo "ACCEPT_FSL_EULA = \"$EULA\"" >> conf/local.conf
-fi
-
-cat <<EOF
-
-Welcome to Freescale Community BSP
-
-The Yocto Project has extensive documentation about OE including a
-reference manual which can be found at:
-    http://yoctoproject.org/documentation
-
-For more information about OpenEmbedded see their website:
-    http://www.openembedded.org/
-
-You can now run 'bitbake <target>'
-
-Common targets are:
-    core-image-minimal
-    meta-toolchain
-    meta-toolchain-sdk
-    adt-installer
-    meta-ide-support
-
-EOF
 
 if [ -n "$generated_config" ]; then
     cat <<EOF
@@ -243,7 +209,6 @@ Your build environment has been configured with:
     MACHINE=$MACHINE
     SDKMACHINE=$SDKMACHINE
     DISTRO=$DISTRO
-    EULA=$EULA
 EOF
 else
     echo "Your configuration files at $1 have not been touched."
