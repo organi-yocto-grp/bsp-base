@@ -172,7 +172,8 @@ if [ ! -e conf/local.conf.sample ]; then
 BB_NUMBER_THREADS = '$NCPU'
 PARALLEL_MAKE = '-j $NCPU'
 
-DL_DIR ?= "\${BSPDIR}/downloads/"
+DL_DIR ?= "\${BSPDIR}/build/share/downloads/"
+SSTATE_DIR ?= "${BSPDIR}/build/share/sstate-cache/"
 EOF
     # Change settings according environment
     sed -e "s,MACHINE ??=.*,MACHINE ??= '$MACHINE',g" \
