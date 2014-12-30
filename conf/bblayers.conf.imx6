@@ -16,5 +16,6 @@ BBLAYERS = " \
   ${BSPDIR}/sources/meta-fsl-arm \
   \
   ${BSPDIR}/sources/meta-autorock \
+  ${BSPDIR}/sources/meta-imx6-autorock \
 "
 
