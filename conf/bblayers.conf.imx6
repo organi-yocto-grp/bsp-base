@@ -11,6 +11,8 @@ BBLAYERS = " \
   ${BSPDIR}/sources/meta-openembedded/meta-oe \
   ${BSPDIR}/sources/meta-openembedded/meta-multimedia \
   \
+  ${BSPDIR}/sources/meta-qt5 \
+  \
   ${BSPDIR}/sources/meta-fsl-arm \
   \
   ${BSPDIR}/sources/meta-autorock \
