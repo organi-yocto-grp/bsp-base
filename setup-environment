@@ -30,7 +30,7 @@ usage()
     <build-dir>: specifies the build directory location (required)
     <SOC>: imx6|sunxi (required)
 
-If undefined, this script will set \$MACHINE to 'wisehmi'(imx6) or 'a20navi'(sunxi).
+If undefined, this script will set \$MACHINE to 'imx6dlwisehmi'(imx6) or 'a20navi'(sunxi).
 "
 
     ls sources/meta-$2-autorock/conf/machine/*.conf > /dev/null 2>&1
@@ -98,7 +98,7 @@ esac
 if [ -z "$MACHINE" ]; then
     case "$2" in
         'imx6')
-            MACHINE='wisehmi'
+            MACHINE='imx6dlwisehmi'
             ;;
         'sunxi')
             MACHINE='a20navi'
