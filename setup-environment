@@ -166,22 +166,14 @@ if [ ! -e conf/local.conf.sample ]; then
 
     # Generate the local.conf based on the Yocto defaults
     TEMPLATES=$CWD/sources/base/conf 
-    grep -v '^#\|^$' conf/local.conf.sample > conf/local.conf
-    cat >> conf/local.conf <<EOF
+    cp $TEMPLATES/* conf/
+    cp $CWD/sources/base/locals/local.conf.$2 conf/local.conf
 
-BB_NUMBER_THREADS = '$NCPU'
-PARALLEL_MAKE = '-j $NCPU'
-
-DL_DIR ?= "/opt/yocto-rel/share/downloads/"
-SSTATE_DIR ?= "/opt/yocto-rel/share/sstate-cache/"
-EOF
     # Change settings according environment
     sed -e "s,MACHINE ??=.*,MACHINE ??= '$MACHINE',g" \
         -e "s,SDKMACHINE ??=.*,SDKMACHINE ??= '$SDKMACHINE',g" \
         -e "s,DISTRO ?=.*,DISTRO ?= '$DISTRO',g" \
         -i conf/local.conf
-
-    cp $TEMPLATES/* conf/
 
     for s in $HOME/.oe $HOME/.yocto; do
         if [ -e $s/site.conf ]; then
@@ -191,16 +183,6 @@ EOF
     done
 
     generated_config=1
-fi
-
-# Handle EULA setting
-if [ "$2" = "imx6" ]; then
-    EULA=1
-    if grep -q '^ACCEPT_FSL_EULA\s*=' conf/local.conf; then
-        sed -i "s/^#*ACCEPT_FSL_EULA\s*=.*/ACCEPT_FSL_EULA = \"$EULA\"/g" conf/local.conf
-    else
-        echo "ACCEPT_FSL_EULA = \"$EULA\"" >> conf/local.conf
-    fi
 fi
 
 if [ -n "$generated_config" ]; then
