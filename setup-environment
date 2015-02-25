@@ -164,9 +164,8 @@ generated_config=
 if [ ! -e conf/local.conf.sample ]; then
     mv conf/local.conf conf/local.conf.sample
 
-    # Generate the local.conf based on the Yocto defaults
-    TEMPLATES=$CWD/sources/base/conf 
-    cp $TEMPLATES/* conf/
+    # Generate bblayers.conf & local.conf 
+    cp $CWD/sources/base/conf/bblayers.conf.$2 conf/bblayers.conf
     cp $CWD/sources/base/locals/local.conf.$2 conf/local.conf
 
     # Change settings according environment
