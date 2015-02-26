@@ -1,0 +1,7 @@
+repo init -u git@git.autorock.com:yocto/bsp-manifest.git --repo-url=git://github.com/CyanogenMod/tools_repo.git
+repo sync
+. ./setup-environment <builddir> imx6|sunxi
+bitbake u-boot
+bitbake pack-img
+bitbake autorock-image-*
+...
