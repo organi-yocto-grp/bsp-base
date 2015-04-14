@@ -1,4 +1,4 @@
-MACHINE ??= 'a20navi'
+MACHINE ??= 'a20navi-njgdbus'
 DISTRO ?= 'linda'
 PACKAGE_CLASSES ?= "package_ipk"
 EXTRA_IMAGE_FEATURES = "debug-tweaks"
