@@ -22,4 +22,4 @@ SSTATE_DIR = "/opt/yocto-rel/share/sstate-cache/"
 
 SDKMACHINE ?= "i686"
 
-RM_WORK_EXCLUDE += ""
+RM_WORK_EXCLUDE += "autorock-image-dashboard autorock-image-core autorock-image-dev"
