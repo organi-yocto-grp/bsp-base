@@ -18,7 +18,7 @@ BB_NUMBER_THREADS = '24'
 PARALLEL_MAKE = '-j 24'
 
 DL_DIR ?= "/opt/yocto-rel/share/downloads/"
-SSTATE_DIR = "/opt/yocto-rel/share/sstate-cache/"
+SSTATE_DIR = "/opt/yocto-rel/yocto/${DISTRO_VERSION}/build/share/sstate-cache/"
 
 SDKMACHINE ?= "i686"
 
