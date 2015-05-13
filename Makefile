@@ -2,13 +2,26 @@
 
 SHELL := /bin/bash
 
+DL_DIR ?=
+SSTATE_DIR ?= $(CURDIR)/build/share/sstate-cache
+
 all: build/share/sstate-cache/.make.done
+init: build/share/sstate-cache/.make.done
 
 build/share/sstate-cache/.make.done:
 	mkdir -p $(dir $@)
 	touch $@
 
 define add_machine
+init: build/linda-$1/conf/local.conf
+build/linda-$1/conf/local.conf:
+	mkdir -p build/linda-$1
+	MACHINE=$1 source ./setup-environment build/linda-$1 $2
+ifneq ($(DL_DIR),)
+	sed -e "s,DL_DIR ?=.*,DL_DIR ?= '$(DL_DIR)',g" -i $$@
+endif
+	sed -e "s,SSTATE_DIR =.*,SSTATE_DIR = '$(SSTATE_DIR)',g" -i $$@
+
 .PHONY : $1
 all: $1
 $1: $1_base $1_rootfs
@@ -18,7 +31,7 @@ $1_base: build/linda-$1/.make.done
 build/linda-$1/.make.done:
 	mkdir -p $$(dir $$@)
 	MACHINE=$1 source ./setup-environment $$(dir $$@) $2 && bitbake u-boot pack-img autorock-image-dashboard;
-	touch $$@
+	touch $$@ 
 $1_base_clean:
 	rm -f build/linda-$1/.make.done
 
@@ -59,6 +72,15 @@ endif
 endef
 
 define add_machines
+init: build/linda-$2/conf/local.conf
+build/linda-$2/conf/local.conf:
+	mkdir -p build/linda-$2
+	source ./setup-environment build/linda-$2 $1
+ifneq ($(DL_DIR),)
+	sed -e "s,DL_DIR ?=.*,DL_DIR ?= '$(DL_DIR)',g" -i $$@
+endif
+	sed -e "s,SSTATE_DIR =.*,SSTATE_DIR = '$(SSTATE_DIR)',g" -i $$@
+
 machines := $$(shell ls sources/meta-$1-autorock/conf/machine/*.conf)
 machines := $$(basename $$(notdir $$(machines)))
 $$(foreach machine,$$(machines),$$(eval $$(call add_machine,$$(machine),$1,$2)))
@@ -80,4 +102,4 @@ $(eval $(call add_machines,sunxi,a20navi))
 clean:
 	rm -rf build/linda-*/.make.done*
 
-.PHONY : all clean
+.PHONY : all init clean
