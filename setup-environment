@@ -23,6 +23,7 @@
 NCPU=`grep -c processor /proc/cpuinfo`
 CWD=`pwd`
 PROGNAME="setup-environment"
+BUILD_DIR=$(readlink -f $1)
 
 usage()
 {
@@ -33,10 +34,10 @@ usage()
 If undefined, this script will set \$MACHINE to 'imx6dlwisehmi'(imx6) or 'a20navi-njgdbus'(sunxi).
 "
 
-    ls sources/meta-$2-autorock/conf/machine/*.conf > /dev/null 2>&1
+    ls $CWD/sources/meta-$2-autorock/conf/machine/*.conf > /dev/null 2>&1
     if [ $? -eq 0 ]; then
         echo -e "
-Supported machines: `echo; ls sources/meta-$2-autorock/conf/machine/*.conf \
+Supported machines: `echo; ls $CWD/sources/meta-$2-autorock/conf/machine/*.conf \
 | sed s/\.conf//g | sed -r 's/^.+\///' | xargs -I% echo -e "\t%"`
 
 To build for a machine listed above, run this script as:
@@ -127,10 +128,7 @@ if [ -z "$DISTRO" ]; then
     DISTRO='linda'
 fi
 
-OEROOT=sources/poky
-if [ -e sources/oe-core ]; then
-    OEROOT=sources/oe-core
-fi
+OEROOT=$CWD/sources/poky
 
 # Ensure all files in sources/base are kept in sync with project root
 updated=
@@ -149,7 +147,7 @@ fi
 
 cd $OEROOT
 
-. ./oe-init-build-env $CWD/$1 > /dev/null
+. ./oe-init-build-env $BUILD_DIR > /dev/null
 
 # if conf/local.conf not generated, no need to go further
 if [ ! -e conf/local.conf ]; then
