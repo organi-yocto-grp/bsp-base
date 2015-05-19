@@ -57,22 +57,26 @@ ifeq ($2,imx6)
 $1: $1_sdcard $1_sdcard_dev
 
 .PHONY : $1_sdcard
-$1_sdcard: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.img
+$1_sdcard: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.tar.xz
+$(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.tar.xz: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.img
+	tar -cvJf $$@ -C $$(dir $$<) $$(notdir $$<)
 $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.img: $(BUILD_ROOT)/linda-$1/.make.done $(BUILD_ROOT)/linda-$3/.make.done.$1
 	dd if=/dev/zero of=$$@.tmp bs=1M count=256
 	echo -e "o\nn\np\n1\n12288\n+58M\nn\np\n2\n131072\n\np\nw" | fdisk $$@.tmp
-	dd if=$$(dir $$@)/SPL of=$$@.tmp bs=1K seek=1
-	dd if=$$(dir $$@)/u-boot.img of=$$@.tmp bs=1K seek=64
-	dd if=$$(dir $$@)/pack.img of=$$@.tmp bs=1M seek=1
-	dd if=$$(dir $$@)/autorock-image-dashboard-$1.cpio.packimg of=$$@.tmp bs=1M seek=6
-	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-core-$1.ext4 of=$$@.tmp bs=1M seek=64
+	dd if=$$(dir $$@)/SPL of=$$@.tmp bs=1K seek=1 conv=notrunc
+	dd if=$$(dir $$@)/u-boot.img of=$$@.tmp bs=1K seek=64 conv=notrunc
+	dd if=$$(dir $$@)/pack.img of=$$@.tmp bs=1M seek=1 conv=notrunc
+	dd if=$$(dir $$@)/autorock-image-dashboard-$1.cpio.packimg of=$$@.tmp bs=1M seek=6 conv=notrunc
+	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-core-$1.ext4 of=$$@.tmp bs=1M seek=64 conv=notrunc
 	mv $$@.tmp $$@
 
 .PHONY : $1_sdcard_dev
-$1_sdcard_dev: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.img
+$1_sdcard_dev: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.tar.xz
+$(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.tar.xz: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.img
+	tar -cvJf $$@ -C $$(dir $$<) $$(notdir $$<)
 $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.img: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.img
 	cp $$< $$@.tmp
-	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-dev-$1.ext4 of=$$@.tmp bs=1M seek=64
+	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-dev-$1.ext4 of=$$@.tmp bs=1M seek=64 conv=notrunc
 	mv $$@.tmp $$@
 endif
 endef
