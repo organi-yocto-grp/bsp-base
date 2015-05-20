@@ -2,12 +2,13 @@
 
 SHELL := /bin/bash
 
-
 BUILD_ROOT ?= $(CURDIR)/build
 SOURCE_ROOT ?= $(CURDIR)
 
 DL_DIR ?=
 SSTATE_DIR ?= $(BUILD_ROOT)/share/sstate-cache
+
+MACHINE_BLACKLIST ?= $(strip $(shell if [ -e .machine.blacklist ]; then tr '\n' ' ' < .machine.blacklist; fi))
 
 all: $(SSTATE_DIR)/.make.done
 init: $(SSTATE_DIR)/.make.done
@@ -17,7 +18,6 @@ $(SSTATE_DIR)/.make.done:
 	touch $@
 
 define add_machine
-init: $1_init
 $1_init: $3_init
 $1_init: $(BUILD_ROOT)/linda-$1/conf/local.conf
 $(BUILD_ROOT)/linda-$1/conf/local.conf:
@@ -29,7 +29,6 @@ endif
 	sed -e "s,SSTATE_DIR =.*,SSTATE_DIR = '$(SSTATE_DIR)',g" -i $$@
 
 .PHONY : $1 $1_init
-all: $1
 $1: $1_base $1_rootfs
 
 .PHONY : $1_base $1_base_clean
@@ -94,6 +93,10 @@ endif
 machines := $$(shell ls sources/meta-$1-autorock/conf/machine/*.conf)
 machines := $$(basename $$(notdir $$(machines)))
 $$(foreach machine,$$(machines),$$(eval $$(call add_machine,$$(machine),$1,$2)))
+
+machines := $$(filter-out $(MACHINE_BLACKLIST),$$(machines))
+all: $$(machines)
+init: $$(addsuffix _init,$$(machines))
 
 .PHONY : $2_init $2_sdk $2_clean
 all: $2_sdk
