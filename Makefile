@@ -75,6 +75,7 @@ $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.tar.xz: $(BUILD_ROOT)/lin
 	tar -cvJf $$@ -C $$(dir $$<) $$(notdir $$<)
 $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.img: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.img
 	cp $$< $$@.tmp
+	dd if=/dev/zero of=$$@.tmp bs=1M seek=6 count=250 conv=notrunc
 	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-dev-$1.ext4 of=$$@.tmp bs=1M seek=64 conv=notrunc
 	mv $$@.tmp $$@
 endif
