@@ -81,6 +81,25 @@ $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.img: $(BUILD_ROOT)/linda-
 	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-dev-$1.ext4 of=$$@.tmp bs=1M seek=64 conv=notrunc
 	mv $$@.tmp $$@
 
+.PHONY : $1_rel $1_sdcard_rel $1_sdcard_dev_rel
+$1_rel: $1_sdcard_rel $1_sdcard_dev_rel
+
+$1_sdcard_rel: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-rel.tar.xz
+$(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-rel.tar.xz: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-rel.img
+	tar -cvJf $$@ -C $$(dir $$<) $$(notdir $$<)
+$(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-rel.img: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.img
+	cp $$< $$@.tmp
+	dd if=/dev/zero of=$$@.tmp bs=1K seek=1 count=6143 conv=notrunc
+	mv $$@.tmp $$@
+
+$1_sdcard_dev_rel: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev-rel.tar.xz
+$(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev-rel.tar.xz: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev-rel.img
+	tar -cvJf $$@ -C $$(dir $$<) $$(notdir $$<)
+$(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev-rel.img: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.img
+	cp $$< $$@.tmp
+	dd if=/dev/zero of=$$@.tmp bs=1K seek=1 count=6143 conv=notrunc
+	mv $$@.tmp $$@
+
 .PHONY : $1_sdcard_clean
 $1_sdcard_clean:
 	rm -f $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard*
