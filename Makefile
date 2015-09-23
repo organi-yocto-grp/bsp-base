@@ -68,7 +68,7 @@ $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.img: $(BUILD_ROOT)/linda-$1/.
 	dd if=$$(dir $$@)/u-boot.img of=$$@.tmp bs=1K seek=64 conv=notrunc
 	dd if=$$(dir $$@)/pack.img of=$$@.tmp bs=1M seek=1 conv=notrunc
 	dd if=$$(dir $$@)/autorock-image-dashboard-$1.cpio.packimg of=$$@.tmp bs=1M seek=6 conv=notrunc
-	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-core-$1.ext4 of=$$@.tmp bs=1M seek=64 conv=notrunc
+	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-core-$1.ext4 of=$$@.tmp bs=1M seek=64
 	mv $$@.tmp $$@
 
 .PHONY : $1_sdcard_dev
@@ -77,8 +77,8 @@ $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.tar.xz: $(BUILD_ROOT)/lin
 	tar -cvJf $$@ -C $$(dir $$<) $$(notdir $$<)
 $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard-dev.img: $(BUILD_ROOT)/linda-$1/tmp/deploy/images/$1/sdcard.img
 	cp $$< $$@.tmp
-	dd if=/dev/zero of=$$@.tmp bs=1M seek=6 count=250 conv=notrunc
-	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-dev-$1.ext4 of=$$@.tmp bs=1M seek=64 conv=notrunc
+	dd if=/dev/zero of=$$@.tmp bs=1M seek=6 count=58 conv=notrunc
+	dd if=$(BUILD_ROOT)/linda-$3/tmp/deploy/images/$1/autorock-image-dev-$1.ext4 of=$$@.tmp bs=1M seek=64
 	mv $$@.tmp $$@
 
 .PHONY : $1_rel $1_sdcard_rel $1_sdcard_dev_rel
