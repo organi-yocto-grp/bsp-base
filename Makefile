@@ -129,7 +129,7 @@ all: $2_sdk
 $2_sdk: $(BUILD_ROOT)/linda-$2/.make.done.$2
 $(BUILD_ROOT)/linda-$2/.make.done.$2:
 	mkdir -p $$(dir $$@)
-	source ./setup-environment $$(dir $$@) $1 && bitbake meta-toolchain-qt5 && SDKMACHINE=x86_64 bitbake meta-toolchain-qt5;
+	source ./setup-environment $$(dir $$@) $1 && SDKMACHINE=x86_64 bitbake meta-toolchain-qt5;
 	touch $$@
 $2_clean:
 	rm -f $(BUILD_ROOT)/linda-$2/.make.done.$2
